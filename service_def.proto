@@ -1,13 +1,26 @@
 syntax = "proto3";
 
-message Empty {}
+service TodoService {
 
-message User {
-    int32 id = 1;
-    string name = 2;
-    int32 age = 3;
+    rpc List(Empty) returns (TodoList) {}
+    rpc Insert(Todo) returns (Todo) {}
+    rpc get(TodoRequestId) returns (Todo) {}
+    rpc update(Todo) returns (Todo) {}
+    rpc delete(TodoRequestId) returns (Empty) {} 
 }
 
-service UserService {
-    rpc GetUser (Empty) returns (User) {}
+message Empty {}
+
+message Todo {
+    string id=1;
+    string title = 2;
+    bool iscompleted = 3;
+}
+
+message TodoList {
+    repeated Todo todo = 1;
+}
+
+message TodoRequestId {
+    string id = 1;
 }

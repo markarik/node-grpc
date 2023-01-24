@@ -18,16 +18,16 @@ const options = {
   const pkgDefs = protoLoader.loadSync(PROTO_FILE, options);
   
   //load Definition into gRPC
-  const UserService = grpc.loadPackageDefinition(pkgDefs).UserService;
+  const TodoService = grpc.loadPackageDefinition(pkgDefs).TodoService;
   
   //create the Client
-  const client = new UserService(
+  const client = new TodoService(
     "127.0.0.1:5000",
     grpc.credentials.createInsecure()
   );
   
   //make a call to GetUser
-  client.GetUser({}, (error, user) => {
+  client.List({}, (error, user) => {
     if (error) {
       console.log(error);
     } else {
