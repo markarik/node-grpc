@@ -26,11 +26,14 @@ const options = {
     grpc.credentials.createInsecure()
   );
   
-  //make a call to GetUser
-  client.List({}, (error, user) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log(user);
+
+
+  client.list({},(error,todos) => {
+    if(!error){
+        console.log('successfullt fetched todo lists');
+        console.log(todos.todo);
     }
-  });
+    else{
+        console.error(error);
+    }
+});
