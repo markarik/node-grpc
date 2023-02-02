@@ -1,0 +1,9 @@
+1 Migarations  
+
+https://www.maibornwolff.de/en/know-how/migrations-nodejs-and-postgresql/ 
+
+ a) remember to use the path from the node modules if installed without the global way 
+ ie . node node_modules/db-migrate/bin/db-migrate up;
+
+
+ 
