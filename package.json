@@ -7,8 +7,6 @@
     "test": "echo \"Error: no test specified \" && exit 1",
     "start": "nodemon server.js",
     "client": "nodemon client.js"
-
-
   },
   "author": "Mark Kariuki",
   "keywords": [],
@@ -17,6 +15,8 @@
     "@grpc/grpc-js": "^1.8.4",
     "@grpc/proto-loader": "^0.7.4",
     "bcrypt": "^5.1.0",
+    "db-migrate": "^0.11.13",
+    "db-migrate-pg": "^1.2.2",
     "nodemon": "^2.0.20",
     "pg": "^8.8.0"
   }
