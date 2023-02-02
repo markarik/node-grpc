@@ -1,8 +1,8 @@
 {
     "dev": {
       "driver": "pg",
-      "user": "postgres",
-      "host": "127.0.0.1",
+      "user": "root",
+      "host": "localhost",
       "database": "marvin",
       "password": "",
       "port": 5432
