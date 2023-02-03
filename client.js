@@ -3,7 +3,7 @@ const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 
 //path to our proto file
-const PROTO_FILE = "./service_def.proto";
+const PROTO_FILE = "./proto/service_def.proto";
 
 
 //options needed for loading Proto file

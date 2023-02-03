@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+service AuthService {
+
+    rpc Register(User) returns (Token) {}
+    
+}
+message Empty {}
+
+
+
+
+message Token {
+	string AccessToken = 1;
+	string RefreshToken = 2;
+}
+
+message User {
+    string id = 1;
+    string name = 2;
+    string password = 3;
+    string phone = 4;
+    string age = 5;
+
+}

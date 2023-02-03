@@ -2,10 +2,16 @@
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const { Client } = require("pg")
+const bcrypt = require("bcrypt")
+const saltRounds = 10
+
+
 
 
 //path to our proto file
-const PROTO_FILE = "./service_def.proto";
+const PROTO_FILE = "./proto/service_def.proto";
+const PROTO_FILE_AUTH = "./proto/auth.proto";
+
 
 //options needed for loading Proto file
 const options = {
@@ -18,12 +24,16 @@ const options = {
 
 
 const pkgDefs = protoLoader.loadSync(PROTO_FILE, options);
+const pkgDefsAuth = protoLoader.loadSync(PROTO_FILE_AUTH, options);
+
 
 const todoproto = grpc.loadPackageDefinition(pkgDefs);
+const authProto = grpc.loadPackageDefinition(pkgDefsAuth);
+
 
 //create gRPC server
 const server = new grpc.Server();
-
+let user = {};
 
 const connectDb = async () => {
   try {
@@ -56,6 +66,59 @@ const connectDb = async () => {
   }
 };
 
+
+const registerUser = async () => {
+  try {
+    const client = new Client({
+      user: "postgres",
+      host: "127.0.0.1",
+      database: "marvin",
+      password: "",
+      port: 5432,
+    });
+    await client.connect();
+
+    // var name = user.name;
+    // var password = user.password;
+    // var phone = user.phone;
+    // var age = user.age;
+    
+
+    // var name = 'aaaddd';
+    // var password = "userpassword";
+    // var phone = "userphone";
+    // var age = "userage";
+
+    let uuuuser;
+    
+    
+
+    // await 
+    // client.query(`INSERT INTO user (name, password,phone,age) VALUES(${name},${password},${phone},${age});`);
+
+    // uuuuser = client.query(`INSERT INTO public."user" (
+    //   name, age, password, phone) VALUES (
+    //     `"${name }" `,${password},${phone},${age})
+    //    returning id;`);
+
+    const { name, password,phone,age } = user;
+
+    
+  
+
+  
+    
+    await client.end();
+
+   console.log(uuuuser);
+
+
+
+
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 
 server.addService(todoproto.TodoService.service,{
@@ -107,6 +170,35 @@ server.addService(todoproto.TodoService.service,{
             
         }
     }
+
+})
+
+server.addService(authProto.AuthService.service,{
+
+  
+  
+  register : (call,callback) => {
+      let users = call.request;
+      
+      bcrypt
+      .genSalt(saltRounds)
+      .then(salt => {
+        return bcrypt.hash(users.password, salt)
+      })
+      .then(hash => {
+
+        users.password = hash;
+
+        user = users;
+
+      callback(null,registerUser())
+      })
+      .catch(err => console.error(err.message))
+      
+  },
+ 
+  
+  
 
 })
 
