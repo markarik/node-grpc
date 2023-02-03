@@ -3,7 +3,13 @@ const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const { Client } = require("pg")
 const bcrypt = require("bcrypt")
+const dotenv = require("dotenv")
+const jwt = require("jsonwebtoken")
+
+
 const saltRounds = 10
+
+dotenv.config();
 
 
 
@@ -78,30 +84,21 @@ const registerUser = async () => {
     });
     await client.connect();
 
-    // var name = user.name;
-    // var password = user.password;
-    // var phone = user.phone;
-    // var age = user.age;
+    var name = user.name;
+    var password = user.password;
+    var phone = user.phone;
+    var age = user.age;
     
 
-    // var name = 'aaaddd';
-    // var password = "userpassword";
-    // var phone = "userphone";
-    // var age = "userage";
-
+   
     let uuuuser;
+    let userNew;
     
-    
+    uuuuser =  await client.query(
+      `INSERT INTO "user" ("name", "password","phone","age")  
+       VALUES ($1, $2,$3,$4) RETURNING id,name,phone,age`,[name, password,phone,age]);
 
-    // await 
-    // client.query(`INSERT INTO user (name, password,phone,age) VALUES(${name},${password},${phone},${age});`);
-
-    // uuuuser = client.query(`INSERT INTO public."user" (
-    //   name, age, password, phone) VALUES (
-    //     `"${name }" `,${password},${phone},${age})
-    //    returning id;`);
-
-    const { name, password,phone,age } = user;
+   
 
     
   
@@ -110,10 +107,19 @@ const registerUser = async () => {
     
     await client.end();
 
-   console.log(uuuuser);
+     
+  const accessToken = jwt.sign(uuuuser.rows[0], process.env.ACCESS_TOKEN_SECRET, { expiresIn: '20h' });
+  const refreshToken = jwt.sign(uuuuser.rows[0], process.env.REFRESH_TOKEN_SECRET, { expiresIn: '500m' });
+
+  
 
 
 
+return {
+  "AccessToken": accessToken,
+  "RefreshToken": refreshToken,
+  "user": uuuuser.rows[0]
+};
 
   } catch (error) {
     console.log(error);
@@ -185,13 +191,13 @@ server.addService(authProto.AuthService.service,{
       .then(salt => {
         return bcrypt.hash(users.password, salt)
       })
-      .then(hash => {
+      .then(async hash => {
 
         users.password = hash;
 
         user = users;
 
-      callback(null,registerUser())
+      callback(null,await registerUser())
       })
       .catch(err => console.error(err.message))
       
