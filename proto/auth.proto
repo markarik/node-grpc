@@ -2,7 +2,9 @@ syntax = "proto3";
 
 service AuthService {
 
-    rpc Register(User) returns (Token) {}
+    rpc RegisterUser(User) returns (Token) {}
+    rpc LoginUser(Login) returns (Token) {}
+
     
 }
 message Empty {}
@@ -13,7 +15,7 @@ message Empty {}
 message Token {
 	string AccessToken = 1;
 	string RefreshToken = 2;
-     User user = 3;
+    UserDetails user = 3;
 
 }
 
@@ -23,5 +25,21 @@ message User {
     string password = 3;
     string phone = 4;
     string age = 5;
+    string email = 6;
+
+}
+
+message Login {
+    string password = 1;
+    string email = 2;
+
+}
+
+message UserDetails {
+    int64 id = 1;
+    string name = 2;
+    string phone = 3;
+    string age = 4;
+    string email = 5;
 
 }

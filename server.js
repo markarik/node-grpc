@@ -4,7 +4,9 @@ const protoLoader = require("@grpc/proto-loader");
 const { Client } = require("pg")
 const bcrypt = require("bcrypt")
 const dotenv = require("dotenv")
-const jwt = require("jsonwebtoken")
+const lib = require("./bd");
+const authentication = require("./files/auth");
+
 
 
 const saltRounds = 10
@@ -43,22 +45,16 @@ let user = {};
 
 const connectDb = async () => {
   try {
-    const client = new Client({
-      user: "postgres",
-      host: "127.0.0.1",
-      database: "marvin",
-      password: "",
-      port: 5432,
-    });
-    await client.connect();
+    
+    await lib.client.connect();
     const res  = 
     
 
     
-    await client.query('SELECT * FROM "todo"');
+    await lib.client.query('SELECT * FROM "todo"');
 
     
-    await client.end();
+    await lib.client.end();
 
     var data = { todo: res.rows };
    
@@ -73,58 +69,6 @@ const connectDb = async () => {
 };
 
 
-const registerUser = async () => {
-  try {
-    const client = new Client({
-      user: "postgres",
-      host: "127.0.0.1",
-      database: "marvin",
-      password: "",
-      port: 5432,
-    });
-    await client.connect();
-
-    var name = user.name;
-    var password = user.password;
-    var phone = user.phone;
-    var age = user.age;
-    
-
-   
-    let uuuuser;
-    let userNew;
-    
-    uuuuser =  await client.query(
-      `INSERT INTO "user" ("name", "password","phone","age")  
-       VALUES ($1, $2,$3,$4) RETURNING id,name,phone,age`,[name, password,phone,age]);
-
-   
-
-    
-  
-
-  
-    
-    await client.end();
-
-     
-  const accessToken = jwt.sign(uuuuser.rows[0], process.env.ACCESS_TOKEN_SECRET, { expiresIn: '20h' });
-  const refreshToken = jwt.sign(uuuuser.rows[0], process.env.REFRESH_TOKEN_SECRET, { expiresIn: '500m' });
-
-  
-
-
-
-return {
-  "AccessToken": accessToken,
-  "RefreshToken": refreshToken,
-  "user": uuuuser.rows[0]
-};
-
-  } catch (error) {
-    console.log(error);
-  }
-};
 
 
 server.addService(todoproto.TodoService.service,{
@@ -183,7 +127,7 @@ server.addService(authProto.AuthService.service,{
 
   
   
-  register : (call,callback) => {
+  registerUser : (call,callback) => {
       let users = call.request;
       
       bcrypt
@@ -197,7 +141,7 @@ server.addService(authProto.AuthService.service,{
 
         user = users;
 
-      callback(null,await registerUser())
+      callback(null,await authentication.registerUser(user))
       })
       .catch(err => console.error(err.message))
       
