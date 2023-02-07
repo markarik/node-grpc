@@ -1,14 +1,50 @@
-/* Replace with your SQL commands */
 
--- Sequence and defined type
-CREATE SEQUENCE IF NOT EXISTS user_id_seq;
+   create table "users" ("id" bigserial primary key not null, "name" varchar(255) not null, "gender" varchar(255) not null, "sports" varchar(255) not null, "phone_number" varchar(255) not null, "phone_verified_at" timestamp(0) without time zone null, "password" varchar(255) not null, "remember_token" varchar(100) null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "users" add constraint "users_phone_number_unique" unique ("phone_number") ; 
 
--- Table Definition
-CREATE TABLE "public"."user" (
-    "id" int4 NOT NULL DEFAULT nextval('user_id_seq'::regclass),
-    "name" varchar NOT NULL,
-    "age" varchar NOT NULL,
-    PRIMARY KEY ("id")
-);
-
+   create table "verification" ("id" bigserial primary key not null, "phone_number" varchar(255) not null, "code" integer not null, "is_used" boolean not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   create table "categories" ("id" bigserial primary key not null, "category" varchar(255) not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   create table "episodes" ("id" bigserial primary key not null, "title" varchar(255) not null, "description" text not null, "sub_description" text not null, "total_time" varchar(255) not null, "owner_name" varchar(255) not null, "thumbnail" varchar(255) not null, "category_id" integer not null, "likes" integer not null default '0', "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null);  
+   alter table "episodes" add constraint "episodes_category_id_foreign" foreign key ("category_id") references "categories" ("id") on delete cascade  ;
+   create table "episode_video" ("id" bigserial primary key not null, "episode_id" integer not null, "video_url" text not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "episode_video" add constraint "episode_video_episode_id_foreign" foreign key ("episode_id") references "episodes" ("id") on delete cascade  ;
+   create table "episode_user" ("id" bigserial primary key not null, "episode_id" integer not null, "user_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null, "is_started_watching" boolean not null)  ;
+   alter table "episode_user" add constraint "episode_user_episode_id_foreign" foreign key ("episode_id") references "episodes" ("id") on delete cascade  ;
+   alter table "episode_user" add constraint "episode_user_user_id_foreign" foreign key ("user_id") references "users" ("id") on delete cascade  ;
+   create table "episode_like" ("id" bigserial primary key not null, "episode_id" integer not null, "user_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "episode_like" add constraint "episode_like_episode_id_foreign" foreign key ("episode_id") references "episodes" ("id") on delete cascade  ;
+   alter table "episode_like" add constraint "episode_like_user_id_foreign" foreign key ("user_id") references "users" ("id") on delete cascade  ;
+   create table "user_profile" ("id" bigserial primary key not null, "last_url" varchar(255) not null, "is_complete" boolean not null default '0', "user_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "user_profile" add constraint "user_profile_user_id_foreign" foreign key ("user_id") references "users" ("id") on delete cascade  ;
+   create table "address" ("id" bigserial primary key not null, "address1" varchar(255) not null, "address2" varchar(255) null, "city" varchar(255) not null, "state" varchar(255) not null, "zipcode" integer not null, "user_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "address" add constraint "address_user_id_foreign" foreign key ("user_id") references "users" ("id") on delete cascade  ;
+   create table "insuarance" ("id" bigserial primary key not null, "name" varchar(255) not null, "dob" date not null, "insuarance_provider" varchar(255) not null, "insurance_number" varchar(255) not null, "address" integer not null, "user_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null) ; 
+   alter table "insuarance" add constraint "insuarance_user_id_foreign" foreign key ("user_id") references "users" ("id") on delete cascade  ;
+   create table "emergency_contacts" ("id" bigserial primary key not null, "first_name" varchar(255) not null, "last_name" varchar(255) not null, "phone_number" varchar(255) not null, "relationship" varchar(255) not null, "user_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "emergency_contacts" add constraint "emergency_contacts_user_id_foreign" foreign key ("user_id") references "users" ("id") on delete cascade  ;
+   create table "payment_details" ("id" bigserial primary key not null, "name" varchar(255) not null, "card_number" varchar(255) not null, "exp_date" varchar(255) not null, "cvv" integer not null, "zipcode" integer not null, "is_main_card" boolean not null default '0', "user_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "payment_details" add constraint "payment_details_user_id_foreign" foreign key ("user_id") references "users" ("id") on delete cascade  ;
+  create table "therapist_preference" ("id" bigserial primary key not null, "gender" varchar(255) not null, "ethnicity" varchar(255) not null, "speciality" varchar(255) not null, "user_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "therapist_preference" add constraint "therapist_preference_user_id_foreign" foreign key ("user_id") references "users" ("id") on delete cascade  ;
+   create table "therapist" ("id" bigserial primary key not null, "name" varchar(255) not null, "tags" text not null, "time_taken_per_session" varchar(255) not null, "description" text not null, "passion" text not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   comment on column "therapist"."tags" is 'The data saved here should be comma separated'  ;
+   comment on column "therapist"."passion" is 'The data saved here should be comma separated'  ;
+   create table "therapist_user" ("id" bigserial primary key not null, "user_id" integer not null, "therapist_id" integer not null, "has_requested_change" boolean not null default '0', "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "therapist_user" add constraint "therapist_user_user_id_foreign" foreign key ("user_id") references "users" ("id") on delete cascade  ;
+  alter table "therapist_user" add constraint "therapist_user_therapist_id_foreign" foreign key ("therapist_id") references "therapist" ("id") on delete cascade  ;
+   create table "other_few_things" ("id" bigserial primary key not null, "thought_attempt_suicide" boolean not null, "when_thought_suicide" varchar(255) null, "thought_attempt_harming" boolean not null, "when_thought_harming" varchar(255) null, "substances_used" varchar(255) not null, "user_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "other_few_things" add constraint "other_few_things_user_id_foreign" foreign key ("user_id") references "users" ("id") on delete cascade  ;
+   create table "therapist_qualifications" ("id" bigserial primary key not null, "qualification" text not null, "institution" varchar(255) not null, "therapist_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "therapist_qualifications" add constraint "therapist_qualifications_therapist_id_foreign" foreign key ("therapist_id") references "therapist" ("id") on delete cascade  ;
+   create table "therapist_inspirees" ("id" bigserial primary key not null, "name" text not null, "image_url" varchar(255) not null, "tags" text not null, "therapist_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "therapist_inspirees" add constraint "therapist_inspirees_therapist_id_foreign" foreign key ("therapist_id") references "therapist" ("id") on delete cascade  ;
+   comment on column "therapist_inspirees"."tags" is 'The data saved here should be comma separated'  ;
+   create table "sessions" ("id" bigserial primary key not null, "date_of_session" date not null, "time_of_session" time(0) without time zone not null, "retain_this_time" boolean not null default '0', "user_id" integer not null, "therapist_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "sessions" add constraint "sessions_user_id_foreign" foreign key ("user_id") references "users" ("id") on delete cascade  ;
+   alter table "sessions" add constraint "sessions_therapist_id_foreign" foreign key ("therapist_id") references "therapist" ("id") on delete cascade  ;
+   create table "schedule_other_time_suggestions" ("id" bigserial primary key not null, "date_of_session" date not null, "time_of_session_range" time(0) without time zone not null, "user_id" integer not null, "therapist_id" integer not null, "created_at" timestamp(0) without time zone null, "updated_at" timestamp(0) without time zone null)  ;
+   alter table "schedule_other_time_suggestions" add constraint "schedule_other_time_suggestions_user_id_foreign" foreign key ("user_id") references "users" ("id") on delete cascade  ;
+   alter table "schedule_other_time_suggestions" add constraint "schedule_other_time_suggestions_therapist_id_foreign" foreign key ("therapist_id") references "therapist" ("id") on delete cascade  ;
+   comment on column "schedule_other_time_suggestions"."date_of_session" is 'The data saved here should be comma separated'  ;
+   comment on column "schedule_other_time_suggestions"."time_of_session_range" is 'The data saved here should be comma separated'  ;
 
